@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab Label Printer</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="./" aria-label="Lab Label Printer home"><span class="brand-icon">▥</span><span>LAB LABEL<span class="brand-sub">PRINT WORKSPACE</span></span></a>
+    <p class="nav-caption">LABEL LIBRARY</p>
+    <nav id="types" aria-label="Label types"></nav>
+    <div class="sidebar-bottom"><span class="connection-dot"></span><strong id="host">Connecting to host…</strong><p>Labels print to this PC’s installed Zebra.</p><button id="reload" class="sidebar-button">↻ Reload config</button></div>
+  </aside>
+  <div class="workspace">
+    <header><div><p class="eyebrow">LAB TOOLS / LABEL PRINTER</p><h1>Create a label</h1><p class="subtitle">Choose a saved label or start something new.</p></div><div class="header-tools"><button id="manage-config" class="button quiet" disabled>Manage label_config.json</button><a href="#" id="export-excel" class="button quiet">↓ Export library</a><button id="settings" class="button quiet">⚙ Print & layout settings</button></div></header>
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+    <section class="printer-bar" aria-label="Printer connection"><span class="printer-symbol">▤</span><label class="printer-select">HOST PRINTER<select id="printer" aria-label="Printer on host computer"></select></label><button id="refresh-printers" class="icon-button" title="Refresh host printers" aria-label="Refresh host printers">↻</button><span class="printer-help" id="printer-help">Connected through the host PC</span></section>
+    <main>
+      <section class="card editor-card" aria-labelledby="editor-heading">
+        <div class="card-heading"><div><p class="eyebrow">01 / LABEL DETAILS</p><h2 id="editor-heading">Antibodies</h2></div><button id="new-label" class="button small">＋ New label</button></div>
+        <div class="card-content">
+          <label class="field">Saved preset<select id="preset"><option value="">New label</option></select></label>
+          <div class="form-grid print-options"><label class="field">Label size<select id="format"></select></label><label class="field">Layout<select id="layout"></select></label></div>
+          <div id="fields" class="form-grid"></div>
+          <section id="composition-section" hidden><div class="section-heading"><h3>Composition</h3><span>Concentration · component · amount · MW · CAS</span></div><div id="composition"></div><button id="add-chemical" class="button small">＋ Add component</button></section>
+          <div id="hazards" class="hazard-options" aria-label="Add hazard pictograms"></div>
+          <div class="form-grid footer-fields"><label class="field" id="user-field">Prepared by<input id="user" list="users" placeholder="Select or enter your name" autocomplete="off"><datalist id="users"></datalist></label><label class="field">Copies of sheet<input id="copies" type="number" min="1" max="999" value="1"></label></div>
+          <div class="save-row"><button id="save-preset" class="button">Save / update preset</button><button id="rename-preset" class="text-button">Rename</button></div>
+        </div>
+      </section>
+      <section class="card preview-card" aria-labelledby="preview-heading">
+        <div class="card-heading"><div><p class="eyebrow">02 / PRINT PREVIEW</p><h2 id="preview-heading">Ready for the label roll</h2></div><span class="live-badge"><span></span>LIVE</span></div>
+        <div class="preview-stage"><div id="preview-empty">Preparing your label…</div><img id="preview" alt="Label print preview" hidden></div>
+        <div class="preview-meta"><span id="size-meta"></span><span id="sheet-meta"></span></div>
+        <div class="print-summary"><div><span class="summary-label">PRINT DATE</span><strong id="date"></strong></div><div><span class="summary-label">OUTPUT</span><strong id="output-meta">1 sheet</strong></div></div>
+        <p class="preview-note">Preview uses the same label renderer as the printer. Physical alignment follows your saved X/Y offsets.</p>
+        <div class="print-actions"><button id="download-zpl" class="button">↓ Save ZPL</button><button id="print" class="button primary">Print label <span>→</span></button></div>
+        <p class="host-note" id="host-note"></p>
+      </section>
+    </main>
+    <footer class="page-footer"><span>LAB LABEL PRINTER</span><span>Shared presets. Precise labels.</span></footer>
+  </div>
+  <dialog id="settings-dialog" class="settings-dialog"><form method="dialog"><div class="dialog-heading"><div><p class="eyebrow">PRINTER SETUP</p><h2>Print & layout settings</h2></div><button class="icon-button" aria-label="Close settings">×</button></div></form><p class="muted">Adjust the selected label size. Changes appear in the preview; save to this PC’s configuration.</p><div class="form-grid"><label class="field">Print mode<select id="media"><option value="thermal-transfer">Thermal transfer (ribbon)</option><option value="direct-thermal">Direct thermal (no ribbon)</option></select></label><div></div><label class="field">X offset (dots)<input id="offset-x" type="number" min="-1000" max="1000"></label><label class="field">Y offset (dots)<input id="offset-y" type="number" min="-1000" max="1000"></label></div><p class="muted">At 203 dpi, approximately 8 dots = 1 mm.</p><div class="calibration-row"><button id="print-grid" class="button">Print alignment grid</button><span>Uses the selected host printer.</span></div><details id="layout-details"><summary>Fine-tune label layout</summary><p class="muted">Positions, widths, and font sizes are in printer dots.</p><label class="field">Layout section<select id="layout-section"></select></label><div id="layout-controls" class="form-grid"></div></details><div class="dialog-actions"><button id="discard-settings" class="button">Reset to saved</button><button id="save-settings" class="button primary">Save settings</button></div></dialog>
+  <dialog id="name-dialog" class="name-dialog"><form id="name-form"><h2 id="name-title">Save preset</h2><label class="field">Preset name<input id="preset-name" required maxlength="200"></label><div class="dialog-actions"><button type="button" id="cancel-name" class="button">Cancel</button><button class="button primary" type="submit">Save</button></div></form></dialog>
+  <dialog id="config-dialog" class="settings-dialog">
+    <form method="dialog"><div class="dialog-heading"><h2>Manage label_config.json</h2><button class="icon-button" aria-label="Close configuration">×</button></div></form>
+    <p class="muted">Edit the JSON or load a file. Save applies it to this PC and backs up the previous configuration.</p>
+    <label class="field">Import JSON<input id="config-file" type="file" accept=".json,application/json"></label>
+    <label class="field">Configuration JSON<textarea id="config-text" rows="16" spellcheck="false"></textarea></label>
+    <p id="config-status" role="status" aria-live="polite"></p>
+    <div class="dialog-actions">
+      <button id="config-download" class="button">Download JSON</button>
+      <button id="config-save" class="button primary">Save configuration</button>
+    </div>
+  </dialog>
+</body>
+</html>
